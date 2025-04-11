@@ -4,6 +4,7 @@ const Attachment = require('../models/Attachment');
 const { isContentAppropriate } = require('../utils/contentCheck');
 const { attachImagesToAnnouncements } = require('../utils/withAttachments');
 const { isGovUser } = require('../utils/isGovUser');
+const { attachCommentsToOne } = require('../utils/withComments');
 
 const createAnnouncement = async (req, res) => {
     const { title, description, image_urls } = req.body;
@@ -59,7 +60,9 @@ const getOne = async (req, res) => {
 
     const attachments = await Attachment.findByTarget('announcement', id);
     announcement.image_urls = attachments.map(a => a.url);
-    res.json(announcement);
+
+    const comments = await attachCommentsToOne('announcement', id);
+    res.json({ ...announcement, comments });
 };
 
 const getAll = async (req, res) => {

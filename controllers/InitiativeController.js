@@ -4,6 +4,7 @@ const User = require('../models/User');
 const { isContentAppropriate } = require('../utils/contentCheck');
 const { attachImagesToInitiatives, attachImagesToOne } = require('../utils/withAttachments');
 const { attachSupportCountsToInitiatives, attachSupportCountToOne } = require('../utils/withSupportCount');
+const { attachCommentsToOne } = require('../utils/withComments');
 
 const createInitiative = async (req, res) => {
     const { title, description, size, address, keywords, image_urls } = req.body;
@@ -95,7 +96,9 @@ const getOneInitiative = async (req, res) => {
 
     const withImages = await attachImagesToOne(initiative);
     const supportCount = await attachSupportCountToOne(id);
-    res.json({ ...withImages, support_count: supportCount });
+    const comments = await attachCommentsToOne('initiative', id);
+
+    res.json({ ...withImages, support_count: supportCount, comments });
 };
 
 const getAllInitiatives = async (req, res) => {

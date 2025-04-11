@@ -31,3 +31,6 @@ app.use('/api/announcements', announcementRoutes);
 
 const supportRoutes = require('./routes/initiativeSupport');
 app.use('/api/initiative-supports', supportRoutes);
+
+const commentRoutes = require('./routes/comments');
+app.use('/api/comments', commentRoutes);
