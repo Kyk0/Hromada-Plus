@@ -28,3 +28,6 @@ app.use('/api/initiatives', initiativeRoutes);
 
 const announcementRoutes = require('./routes/announcements');
 app.use('/api/announcements', announcementRoutes);
+
+const supportRoutes = require('./routes/initiativeSupport');
+app.use('/api/initiative-supports', supportRoutes);

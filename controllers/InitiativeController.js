@@ -3,6 +3,7 @@ const Attachment = require('../models/Attachment');
 const User = require('../models/User');
 const { isContentAppropriate } = require('../utils/contentCheck');
 const { attachImagesToInitiatives, attachImagesToOne } = require('../utils/withAttachments');
+const { attachSupportCountsToInitiatives, attachSupportCountToOne } = require('../utils/withSupportCount');
 
 const createInitiative = async (req, res) => {
     const { title, description, size, address, keywords, image_urls } = req.body;
@@ -92,14 +93,16 @@ const getOneInitiative = async (req, res) => {
     const initiative = await Initiative.findById(id);
     if (!initiative) return res.status(404).json({ error: 'Ініціативу не знайдено' });
 
-    const enriched = await attachImagesToOne(initiative);
-    res.json(enriched);
+    const withImages = await attachImagesToOne(initiative);
+    const supportCount = await attachSupportCountToOne(id);
+    res.json({ ...withImages, support_count: supportCount });
 };
 
 const getAllInitiatives = async (req, res) => {
     const initiatives = await Initiative.findAll();
-    const enriched = await attachImagesToInitiatives(initiatives);
-    res.json(enriched);
+    const withImages = await attachImagesToInitiatives(initiatives);
+    const withSupport = await attachSupportCountsToInitiatives(withImages);
+    res.json(withSupport);
 };
 
 const getUserHromadaInitiatives = async (req, res) => {
@@ -107,14 +110,16 @@ const getUserHromadaInitiatives = async (req, res) => {
     if (!user) return res.status(404).json({ error: 'Користувача не знайдено' });
 
     const initiatives = await Initiative.findByHromada(user.hromada_id);
-    const enriched = await attachImagesToInitiatives(initiatives);
-    res.json(enriched);
+    const withImages = await attachImagesToInitiatives(initiatives);
+    const withSupport = await attachSupportCountsToInitiatives(withImages);
+    res.json(withSupport);
 };
 
 const getMyInitiatives = async (req, res) => {
     const initiatives = await Initiative.findByUser(req.user.id);
-    const enriched = await attachImagesToInitiatives(initiatives);
-    res.json(enriched);
+    const withImages = await attachImagesToInitiatives(initiatives);
+    const withSupport = await attachSupportCountsToInitiatives(withImages);
+    res.json(withSupport);
 };
 
 module.exports = {

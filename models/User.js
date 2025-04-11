@@ -19,6 +19,12 @@ const User = {
 
     async updateProfile(id, data) {
         return db('users').where({ id }).update(data);
+    },
+
+    async addPoints(userId, points) {
+        return db('users')
+            .where({ id: userId })
+            .increment('points', points);
     }
 };
 
