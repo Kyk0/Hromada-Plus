@@ -15,6 +15,10 @@ const User = {
 
     async updatePassword(id, hashedPassword) {
         return db('users').where({ id }).update({ password: hashedPassword });
+    },
+
+    async updateProfile(id, data) {
+        return db('users').where({ id }).update(data);
     }
 };
 

@@ -94,4 +94,24 @@ const changePassword = async (req, res) => {
     res.json({ message: 'Пароль успішно змінено' });
 };
 
-module.exports = { register, login, getMe, changePassword };
+const updateProfile = async (req, res) => {
+    const { name, surname, email } = req.body;
+
+    if (!name || !surname || !email) {
+        return res.status(400).json({ error: 'Усі поля є обовʼязковими' });
+    }
+
+    if (!email.includes('@') || !email.includes('.')) {
+        return res.status(400).json({ error: 'Некоректна електронна пошта' });
+    }
+
+    const existingUser = await User.findByEmail(email);
+    if (existingUser && existingUser.id !== req.user.id) {
+        return res.status(409).json({ error: 'Ця пошта вже зайнята іншим користувачем' });
+    }
+
+    await User.updateProfile(req.user.id, { name, surname, email });
+    res.json({ message: 'Профіль успішно оновлено' });
+};
+
+module.exports = { register, login, getMe, changePassword, updateProfile };

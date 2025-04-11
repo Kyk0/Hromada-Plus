@@ -20,5 +20,8 @@ app.listen(PORT, () => {
 const userRoutes = require('./routes/users');
 app.use('/api/users', userRoutes);
 
-const hromadaRoutes = require('./routes/hromadaRoutes');
+const hromadaRoutes = require('./routes/hromadas');
 app.use('/api/hromadas', hromadaRoutes);
+
+const initiativeRoutes = require('./routes/initiatives');
+app.use('/api/initiatives', initiativeRoutes);

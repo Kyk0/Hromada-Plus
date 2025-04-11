@@ -20,7 +20,7 @@ async function importHromadas() {
           try {
             await db('hromadas').del();
 
-            const chunkSize = 100; // можно поменять
+            const chunkSize = 100;
             for (let i = 0; i < results.length; i += chunkSize) {
               const chunk = results.slice(i, i + chunkSize);
               await db('hromadas').insert(chunk);
@@ -67,10 +67,10 @@ async function setup() {
       table.text('description');
       table.integer('user_id').notNullable().references('id').inTable('users');
       table.integer('hromada_id').notNullable().references('id').inTable('hromadas');
-      table.string('status').notNullable();
       table.string('size').notNullable();
       table.string('address');
       table.text('keywords');
+      table.string('status').notNullable().defaultTo('на розгляді');
       table.text('moderation_comment');
       table.timestamp('created_at').defaultTo(db.fn.now());
     });
