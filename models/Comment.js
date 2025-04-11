@@ -1,4 +1,6 @@
 const db = require('../db/knex');
+const Initiative = require('./Initiative');
+const Announcement = require('./Announcement');
 
 const Comment = {
     async create(data) {
@@ -27,11 +29,21 @@ const Comment = {
 
     async findLastByUser(userId) {
         return db('comments')
-            .where({ user_id: userId })
+            .where({ user_id: userId, visible: true })
             .orderBy('created_at', 'desc')
             .first();
     },
 
+    async targetExists(type, id) {
+        if (type === 'initiative') {
+            const target = await Initiative.findById(id);
+            return !!target;
+        } else if (type === 'announcement') {
+            const target = await Announcement.findById(id);
+            return !!target;
+        }
+        return false;
+    }
 
 };
 

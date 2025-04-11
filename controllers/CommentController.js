@@ -23,20 +23,9 @@ const createComment = async (req, res) => {
         return res.status(400).json({ error: 'Коментар містить неприйнятний зміст' });
     }
 
-    const last = await Comment.findLastByUser(userId);
-
-    if (last) {
-        const now = Date.now();
-        const lastTime = new Date(last.created_at).getTime();
-        const intervalSec = parseInt(process.env.MIN_COMMENT_INTERVAL || '60', 10);
-        const intervalMs = intervalSec * 1000;
-
-        if (now - lastTime < intervalMs) {
-            const waitSec = Math.ceil((intervalMs - (now - lastTime)) / 1000);
-            return res.status(429).json({
-                error: `Почекайте ще ${waitSec} сек. перед наступним коментарем`
-            });
-        }
+    const targetExists = await Comment.targetExists(target_type, target_id);
+    if (!targetExists) {
+        return res.status(404).json({ error: 'Обʼєкт для коментування не знайдено' });
     }
 
     const [commentId] = await Comment.create({
