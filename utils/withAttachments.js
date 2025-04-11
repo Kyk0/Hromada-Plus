@@ -23,5 +23,24 @@ async function attachImagesToOne(initiative) {
         image_urls: attachments.map(a => a.url)
     };
 }
+async function attachImagesToAnnouncements(announcements) {
+    const ids = announcements.map(a => a.id);
+    const attachments = await Attachment.findManyByTarget('announcement', ids);
 
-module.exports = { attachImagesToInitiatives, attachImagesToOne };
+    const grouped = {};
+    for (const att of attachments) {
+        if (!grouped[att.target_id]) grouped[att.target_id] = [];
+        grouped[att.target_id].push(att.url);
+    }
+
+    return announcements.map(announcement => ({
+        ...announcement,
+        image_urls: grouped[announcement.id] || []
+    }));
+}
+
+module.exports = {
+    attachImagesToInitiatives,
+    attachImagesToAnnouncements,
+    attachImagesToOne,
+};
