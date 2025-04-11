@@ -34,3 +34,7 @@ app.use('/api/initiative-supports', supportRoutes);
 
 const commentRoutes = require('./routes/comments');
 app.use('/api/comments', commentRoutes);
+
+const moderationRoutes = require('./routes/moderation');
+app.use('/api/moderation', moderationRoutes);
+

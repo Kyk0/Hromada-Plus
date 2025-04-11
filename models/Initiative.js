@@ -29,6 +29,15 @@ const Initiative = {
 
     async findByUser(userId) {
         return db('initiatives').where({ user_id: userId }).orderBy('created_at', 'desc');
+    },
+
+    async updateStatus(id, status, comment) {
+        return db('initiatives')
+            .where({ id })
+            .update({
+                status,
+                moderation_comment: comment
+            });
     }
 };
 
