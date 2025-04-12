@@ -2,11 +2,14 @@ import { useEffect, useState } from "react"
 import { updateUserProfile, getCurrentUser } from "../api/user"
 import { getMyInitiatives } from "../api/initiative"
 import { getMySupportedInitiatives } from "../api/support"
+import { fetchHromadas } from "../api/hromadas"
 import ChangePasswordModal from "../components/ChangePasswordModal"
 import InitiativeMiniCard from "../components/InitiativeMiniCard"
+import { useNavigate } from "react-router-dom"
 
 const ProfilePage = () => {
     const [user, setUser] = useState(null)
+    const [hromadas, setHromadas] = useState([])
     const [editing, setEditing] = useState(false)
     const [form, setForm] = useState({ name: "", surname: "", email: "" })
     const [message, setMessage] = useState("")
@@ -14,17 +17,20 @@ const ProfilePage = () => {
     const [showPasswordModal, setShowPasswordModal] = useState(false)
     const [myInitiatives, setMyInitiatives] = useState([])
     const [supportedInitiatives, setSupportedInitiatives] = useState([])
+    const navigate = useNavigate()
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [userRes, mineRes, supportedRes] = await Promise.all([
+                const [userRes, mineRes, supportedRes, hromadasRes] = await Promise.all([
                     getCurrentUser(),
                     getMyInitiatives(),
-                    getMySupportedInitiatives()
+                    getMySupportedInitiatives(),
+                    fetchHromadas()
                 ])
 
                 setUser(userRes)
+                setHromadas(hromadasRes)
                 setForm({
                     name: userRes.name,
                     surname: userRes.surname,
@@ -52,6 +58,13 @@ const ProfilePage = () => {
             setMessage(err.message)
         }
     }
+
+    const handleLogout = () => {
+        localStorage.removeItem("token")
+        navigate("/login")
+    }
+
+    const hromadaName = hromadas.find(h => h.id === user?.hromada_id)?.name || "Невідома громада"
 
     if (loading || !user) {
         return (
@@ -107,7 +120,7 @@ const ProfilePage = () => {
                                     <div><strong>Email:</strong> {user.email}</div>
                                 </>
                             )}
-                            <div><strong>Громада ID:</strong> {user.hromada_id}</div>
+                            <div><strong>Громада:</strong> {hromadaName}</div>
                         </div>
                     </div>
 
@@ -132,6 +145,12 @@ const ProfilePage = () => {
                             className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition text-sm sm:text-base"
                         >
                             Змінити пароль
+                        </button>
+                        <button
+                            onClick={handleLogout}
+                            className="bg-red-600 text-white py-2 px-4 rounded hover:bg-red-700 transition text-sm sm:text-base"
+                        >
+                            Вийти з акаунту
                         </button>
                         {message && (
                             <div className="text-sm mt-1 text-green-600">{message}</div>
