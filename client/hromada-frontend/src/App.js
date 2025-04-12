@@ -17,17 +17,19 @@ function App() {
     return (
         <Router>
             <Routes>
-                {/* Публичные маршруты */}
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
+                <Route path="/" element={<HomePage />} />
 
-                {/* Приватные маршруты внутри MainLayout */}
                 <Route element={<MainLayout />}>
-                    <Route path="/" element={<HomePage />} />
-                    <Route path="/search" element={<SearchPage />} />
-                    <Route path="/initiatives/:id" element={<InitiativePage />} />
-
-                    {/* Защищённые */}
+                    <Route
+                        path="/search"
+                        element={isAuthenticated ? <SearchPage /> : <Navigate to="/login" replace />}
+                    />
+                    <Route
+                        path="/initiatives/:id"
+                        element={isAuthenticated ? <InitiativePage /> : <Navigate to="/login" replace />}
+                    />
                     <Route
                         path="/profile"
                         element={isAuthenticated ? <ProfilePage /> : <Navigate to="/login" replace />}
@@ -38,7 +40,6 @@ function App() {
                     />
                 </Route>
 
-                {/* Редирект всех неизвестных путей */}
                 <Route path="*" element={<Navigate to="/" />} />
             </Routes>
         </Router>
