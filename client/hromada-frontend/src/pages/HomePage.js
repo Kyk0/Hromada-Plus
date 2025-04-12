@@ -9,8 +9,18 @@ const HomePage = () => {
     const [hromadas, setHromadas] = useState([])
 
     useEffect(() => {
-        getAllInitiatives().then(data => setInitiatives(data.slice().reverse()))
-        fetchHromadas().then(setHromadas)
+        const fetchData = async () => {
+            const [allInitiatives, allHromadas] = await Promise.all([
+                getAllInitiatives(),
+                fetchHromadas()
+            ])
+
+            const sorted = [...allInitiatives].sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+            setInitiatives(sorted.slice(0, 4)) // тільки 4 останні
+            setHromadas(allHromadas)
+        }
+
+        fetchData()
     }, [])
 
     const getHromadaName = (id) => {
@@ -32,27 +42,29 @@ const HomePage = () => {
                 </button>
             </section>
 
-            <section className="space-y-6">
-                <h2 className="text-xl font-semibold text-gray-800">Останні ініціативи</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    {initiatives.slice(0, 4).map((i) => (
-                        <div
-                            key={i.id}
-                            onClick={() => navigate(`/initiatives/${i.id}`)}
-                            className="bg-white rounded-lg shadow-sm border border-gray-200 cursor-pointer hover:shadow-md transition p-4 space-y-2"
-                        >
-                            <h3 className="text-lg font-bold text-gray-900 truncate">{i.title}</h3>
-                            <p className="text-sm text-gray-600 line-clamp-2">{i.description}</p>
-                            <div className="text-xs text-gray-500">
-                                {i.size === 'локальна' ? 'Локальна ініціатива' : 'Амбіційна ініціатива'} · {getHromadaName(i.hromada_id)}
+            {initiatives.length > 0 && (
+                <section className="space-y-6">
+                    <h2 className="text-xl font-semibold text-gray-800">Останні ініціативи</h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        {initiatives.map((i) => (
+                            <div
+                                key={i.id}
+                                onClick={() => navigate(`/initiatives/${i.id}`)}
+                                className="bg-white rounded-lg shadow-sm border border-gray-200 cursor-pointer hover:shadow-md transition p-4 space-y-2"
+                            >
+                                <h3 className="text-lg font-bold text-gray-900 truncate">{i.title}</h3>
+                                <p className="text-sm text-gray-600 line-clamp-2">{i.description}</p>
+                                <div className="text-xs text-gray-500">
+                                    {i.size === 'локальна' ? 'Локальна ініціатива' : 'Амбіційна ініціатива'} · {getHromadaName(i.hromada_id)}
+                                </div>
+                                <div className="text-xs text-gray-400">
+                                    {new Date(i.created_at).toLocaleDateString("uk-UA")}
+                                </div>
                             </div>
-                            <div className="text-xs text-gray-400">
-                                {new Date(i.created_at).toLocaleDateString("uk-UA")}
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </section>
+                        ))}
+                    </div>
+                </section>
+            )}
 
             <section className="bg-blue-100 rounded-lg px-6 py-10 text-center space-y-3 shadow">
                 <h2 className="text-2xl font-semibold text-blue-800">Чому саме Громада+?</h2>
