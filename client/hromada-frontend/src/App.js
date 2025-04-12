@@ -14,30 +14,23 @@ import MainLayout from "./components/MainLayout"
 function App() {
     const { isAuthenticated } = useAuth()
 
+    const protect = (Component) => (
+        isAuthenticated ? <Component /> : <Navigate to="/login" replace />
+    )
+
     return (
         <Router>
             <Routes>
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
-                <Route path="/" element={<HomePage />} />
 
+                {/* Навбар + контент внутри */}
                 <Route element={<MainLayout />}>
-                    <Route
-                        path="/search"
-                        element={isAuthenticated ? <SearchPage /> : <Navigate to="/login" replace />}
-                    />
-                    <Route
-                        path="/initiatives/:id"
-                        element={isAuthenticated ? <InitiativePage /> : <Navigate to="/login" replace />}
-                    />
-                    <Route
-                        path="/profile"
-                        element={isAuthenticated ? <ProfilePage /> : <Navigate to="/login" replace />}
-                    />
-                    <Route
-                        path="/create-initiative"
-                        element={isAuthenticated ? <CreateInitiativePage /> : <Navigate to="/login" replace />}
-                    />
+                    <Route path="/" element={<HomePage />} />
+                    <Route path="/search" element={protect(SearchPage)} />
+                    <Route path="/initiatives/:id" element={protect(InitiativePage)} />
+                    <Route path="/profile" element={protect(ProfilePage)} />
+                    <Route path="/create-initiative" element={protect(CreateInitiativePage)} />
                 </Route>
 
                 <Route path="*" element={<Navigate to="/" />} />
