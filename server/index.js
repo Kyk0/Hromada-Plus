@@ -1,7 +1,13 @@
 require('dotenv').config();
+const cors = require('cors');
 const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+app.use(cors({
+    origin: process.env.CLIENT_URL,
+    credentials: true
+}));
 
 // Middlewares
 app.use(express.json());
@@ -37,4 +43,3 @@ app.use('/api/comments', commentRoutes);
 
 const moderationRoutes = require('./routes/moderation');
 app.use('/api/moderation', moderationRoutes);
-
