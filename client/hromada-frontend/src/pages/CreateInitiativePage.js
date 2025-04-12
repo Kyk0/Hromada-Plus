@@ -1,49 +1,65 @@
-import { useState } from "react"
-import { useNavigate } from "react-router-dom"
-import { createInitiative } from "../api/initiative"
+// src/pages/CreateInitiativePage.js
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+// Важно: снова подключаем вашу функцию создания инициативы,
+import { createInitiative } from "../api/initiative";
+// и снова используем uploadToCloudinary из вашего обновлённого cloudinary.js
+import { uploadToCloudinary } from "../api/cloudinary";
 
 const CreateInitiativePage = () => {
-    const navigate = useNavigate()
+    const navigate = useNavigate();
 
-    const [title, setTitle] = useState("")
-    const [description, setDescription] = useState("")
-    const [size, setSize] = useState("локальна")
-    const [address, setAddress] = useState("")
-    const [keywords, setKeywords] = useState("")
-    const [images, setImages] = useState([])
-    const [message, setMessage] = useState("")
-    const [showModal, setShowModal] = useState(false)
+    const [title, setTitle] = useState("");
+    const [description, setDescription] = useState("");
+    const [size, setSize] = useState("локальна");
+    const [address, setAddress] = useState("");
+    const [keywords, setKeywords] = useState("");
+    const [images, setImages] = useState([]);
+    const [message, setMessage] = useState("");
+    const [showModal, setShowModal] = useState(false);
+    const [uploading, setUploading] = useState(false);
 
     const handleImageUpload = (e) => {
-        const files = Array.from(e.target.files)
-        const newImages = files.map(file => ({
+        const files = Array.from(e.target.files);
+        const newImages = files.map((file) => ({
             file,
-            preview: URL.createObjectURL(file)
-        }))
-        setImages([...images, ...newImages])
-    }
+            preview: URL.createObjectURL(file),
+        }));
+        setImages((prev) => [...prev, ...newImages]);
+    };
 
     const handleSubmit = async () => {
-        setMessage("")
+        setMessage("");
+        setUploading(true);
+
         try {
+            const uploadedUrls = [];
+            for (const img of images) {
+                const url = await uploadToCloudinary(img.file);
+                uploadedUrls.push(url);
+            }
+
             await createInitiative({
                 title,
                 description,
                 size,
                 address,
                 keywords,
-                image_urls: [] // изображения пока не отправляются
-            })
-            setShowModal(true)
+                image_urls: uploadedUrls,
+            });
+
+            setShowModal(true);
         } catch (err) {
-            setMessage(err.message)
+            setMessage(err.message || "Помилка при створенні ініціативи");
+        } finally {
+            setUploading(false);
         }
-    }
+    };
 
     const handleModalClose = () => {
-        setShowModal(false)
-        navigate("/")
-    }
+        setShowModal(false);
+        navigate("/");
+    };
 
     return (
         <div className="min-h-screen pt-32 px-4 sm:px-10 pb-12 bg-gradient-to-br from-blue-100 to-blue-300 flex justify-center">
@@ -113,9 +129,10 @@ const CreateInitiativePage = () => {
 
                 <button
                     onClick={handleSubmit}
-                    className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+                    disabled={uploading}
+                    className={`w-full ${uploading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"} text-white py-2 rounded transition`}
                 >
-                    Створити ініціативу
+                    {uploading ? "Завантаження..." : "Створити ініціативу"}
                 </button>
 
                 {message && (
@@ -139,7 +156,7 @@ const CreateInitiativePage = () => {
                 </div>
             )}
         </div>
-    )
-}
+    );
+};
 
-export default CreateInitiativePage
+export default CreateInitiativePage;

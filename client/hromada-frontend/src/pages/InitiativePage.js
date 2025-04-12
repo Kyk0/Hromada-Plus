@@ -81,12 +81,16 @@ const InitiativePage = () => {
                 {initiative.image_urls?.length > 0 && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {initiative.image_urls.map((url, idx) => (
-                            <img
+                            <div
                                 key={idx}
-                                src={url}
-                                alt="initiative"
-                                className="w-full h-48 object-cover rounded border"
-                            />
+                                className="border rounded bg-gray-100 flex items-center justify-center overflow-hidden"
+                            >
+                                <img
+                                    src={url}
+                                    alt="initiative"
+                                    className="object-contain max-w-full max-h-80"
+                                />
+                            </div>
                         ))}
                     </div>
                 )}
@@ -109,8 +113,6 @@ const InitiativePage = () => {
                         </button>
                     </div>
                 )}
-
-                {/* Коментарі */}
                 <CommentsSection targetType="initiative" targetId={initiative.id} />
             </div>
         </div>
