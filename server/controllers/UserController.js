@@ -114,4 +114,15 @@ const updateProfile = async (req, res) => {
     res.json({ message: 'Профіль успішно оновлено' });
 };
 
-module.exports = { register, login, getMe, changePassword, updateProfile };
+const getUserNameById = async (req, res) => {
+    const { id } = req.params;
+    const user = await User.findById(id);
+
+    if (!user) {
+        return res.status(404).json({ error: 'Користувача не знайдено' });
+    }
+
+    res.json({ name: user.name, surname: user.surname });
+};
+
+module.exports = { register, login, getMe, changePassword, updateProfile, getUserNameById };

@@ -83,4 +83,8 @@ export const getCurrentUser = async () => {
     return res.data
 }
 
+export const getUserNameById = async (id) => {
+    const res = await axios.get(`${API_URL}/${id}/name`)
+    return res.data
+}
 

@@ -35,3 +35,10 @@ export const getInitiativeById = async (id) => {
     })
     return res.data
 }
+
+const API_URL = `${process.env.REACT_APP_API_URL}/api/initiatives`
+
+export const getAllInitiatives = async () => {
+    const res = await axios.get(API_URL)
+    return res.data
+}

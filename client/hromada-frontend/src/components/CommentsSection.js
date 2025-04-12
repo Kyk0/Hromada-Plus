@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { getCommentsByTarget, createComment, deleteComment } from "../api/comment"
-import { getCurrentUser } from "../api/user"
+import { getCurrentUser, getUserNameById } from "../api/user"
 
 const CommentsSection = ({ targetType, targetId }) => {
     const [comments, setComments] = useState([])
@@ -9,11 +9,23 @@ const CommentsSection = ({ targetType, targetId }) => {
     const [error, setError] = useState("")
     const [user, setUser] = useState(null)
     const [commentToDelete, setCommentToDelete] = useState(null)
+    const [names, setNames] = useState({}) // user_id => { name, surname }
 
     const fetchComments = async () => {
         try {
             const data = await getCommentsByTarget(targetType, targetId)
             setComments(data)
+
+            for (const c of data) {
+                if (!names[c.user_id]) {
+                    try {
+                        const nameData = await getUserNameById(c.user_id)
+                        setNames(prev => ({ ...prev, [c.user_id]: nameData }))
+                    } catch {
+                        setNames(prev => ({ ...prev, [c.user_id]: { name: "Користувач" } }))
+                    }
+                }
+            }
         } catch (err) {
             console.error("Помилка при завантаженні коментарів", err)
         } finally {
@@ -81,33 +93,41 @@ const CommentsSection = ({ targetType, targetId }) => {
                 <p className="text-gray-500">Коментарів ще немає</p>
             ) : (
                 <div className="space-y-3">
-                    {comments.map((comment) => (
-                        <div key={comment.id} className="bg-gray-100 rounded p-3 relative">
-                            {user?.id === comment.user_id && (
-                                <button
-                                    onClick={() => setCommentToDelete(comment.id)}
-                                    className="absolute top-2 right-2 text-red-500 hover:text-red-700 text-sm"
-                                    title="Видалити"
-                                >
-                                    ✖
-                                </button>
-                            )}
+                    {comments.map((comment) => {
+                        const author = names[comment.user_id]
+                        return (
+                            <div key={comment.id} className="bg-gray-100 rounded p-3 relative">
+                                {user?.id === comment.user_id && (
+                                    <button
+                                        onClick={() => setCommentToDelete(comment.id)}
+                                        className="absolute top-2 right-2 text-red-500 hover:text-red-700 text-sm"
+                                        title="Видалити"
+                                    >
+                                        ✖
+                                    </button>
+                                )}
 
-                            <div className="text-xs text-gray-500 absolute top-2 left-3">
-                                {new Date(comment.created_at).toLocaleString("uk-UA", {
-                                    day: "2-digit",
-                                    month: "2-digit",
-                                    year: "numeric",
-                                    hour: "2-digit",
-                                    minute: "2-digit"
-                                })}
-                            </div>
+                                <div className="flex justify-between items-start mb-1 pr-6">
+                                    <div className="text-sm font-semibold text-gray-800">
+                                        {author ? `${author.name} ${author.surname || ''}` : 'Користувач'}
+                                    </div>
+                                    <div className="text-xs text-gray-500 mt-1 whitespace-nowrap">
+                                        {new Date(comment.created_at).toLocaleString("uk-UA", {
+                                            day: "2-digit",
+                                            month: "2-digit",
+                                            year: "numeric",
+                                            hour: "2-digit",
+                                            minute: "2-digit"
+                                        })}
+                                    </div>
+                                </div>
 
-                            <div className="text-sm text-gray-700 whitespace-pre-line mt-4">
-                                {comment.text}
+                                <div className="text-sm text-gray-700 whitespace-pre-line">
+                                    {comment.text}
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        )
+                    })}
                 </div>
             )}
 

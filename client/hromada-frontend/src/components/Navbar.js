@@ -26,6 +26,12 @@ const Navbar = () => {
                     Створити ініціативу
                 </button>
                 <button
+                    onClick={() => navigate("/search")}
+                    className="text-gray-800 hover:text-blue-600 text-sm sm:text-base font-medium"
+                >
+                    Пошук
+                </button>
+                <button
                     onClick={handleProfileClick}
                     className="text-gray-800 hover:text-blue-600 text-sm sm:text-base font-medium"
                 >
