@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react"
-import axios from "axios"
-import { updateUserProfile } from "../api/user"
+import { updateUserProfile, getCurrentUser } from "../api/user"
 import { getMyInitiatives } from "../api/initiative"
 import { getMySupportedInitiatives } from "../api/support"
 import ChangePasswordModal from "../components/ChangePasswordModal"
@@ -8,7 +7,6 @@ import InitiativeMiniCard from "../components/InitiativeMiniCard"
 
 const ProfilePage = () => {
     const [user, setUser] = useState(null)
-    const [hromadas, setHromadas] = useState([])
     const [editing, setEditing] = useState(false)
     const [form, setForm] = useState({ name: "", surname: "", email: "" })
     const [message, setMessage] = useState("")
@@ -20,24 +18,18 @@ const ProfilePage = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const token = localStorage.getItem("token")
-
-                const [userRes, hromadasRes, mineRes, supportedRes] = await Promise.all([
-                    axios.get(`${process.env.REACT_APP_API_URL}/api/users/me`, {
-                        headers: { Authorization: `Bearer ${token}` },
-                    }),
-                    axios.get(`${process.env.REACT_APP_API_URL}/api/hromadas`),
+                const [userRes, mineRes, supportedRes] = await Promise.all([
+                    getCurrentUser(),
                     getMyInitiatives(),
                     getMySupportedInitiatives()
                 ])
 
-                setUser(userRes.data)
+                setUser(userRes)
                 setForm({
-                    name: userRes.data.name,
-                    surname: userRes.data.surname,
-                    email: userRes.data.email,
+                    name: userRes.name,
+                    surname: userRes.surname,
+                    email: userRes.email,
                 })
-                setHromadas(hromadasRes.data)
                 setMyInitiatives(mineRes)
                 setSupportedInitiatives(supportedRes)
                 setLoading(false)
@@ -61,8 +53,6 @@ const ProfilePage = () => {
         }
     }
 
-    const hromadaName = hromadas.find(h => h.id === user?.hromada_id)?.name || "Невідома громада"
-
     if (loading || !user) {
         return (
             <div className="min-h-screen flex items-center justify-center pt-24">
@@ -72,7 +62,7 @@ const ProfilePage = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-100 to-blue-300 flex justify-center pt-32 px-4">
+        <div className="min-h-screen bg-gradient-to-br from-blue-100 to-blue-300 flex justify-center pt-32 pb-10 px-4">
             <div className="w-full max-w-4xl bg-white rounded-xl p-8 space-y-10">
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-6">
                     <div className="flex items-center gap-6 flex-1">
@@ -117,7 +107,7 @@ const ProfilePage = () => {
                                     <div><strong>Email:</strong> {user.email}</div>
                                 </>
                             )}
-                            <div><strong>Громада:</strong> {hromadaName}</div>
+                            <div><strong>Громада ID:</strong> {user.hromada_id}</div>
                         </div>
                     </div>
 
