@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { getCommentsByTarget, createComment } from "../api/comment"
+import { getCommentsByTarget, createComment, deleteComment } from "../api/comment"
 import { getCurrentUser } from "../api/user"
 
 const CommentsSection = ({ targetType, targetId }) => {
@@ -8,6 +8,7 @@ const CommentsSection = ({ targetType, targetId }) => {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState("")
     const [user, setUser] = useState(null)
+    const [commentToDelete, setCommentToDelete] = useState(null)
 
     const fetchComments = async () => {
         try {
@@ -36,9 +37,20 @@ const CommentsSection = ({ targetType, targetId }) => {
             await createComment({ target_type: targetType, target_id: targetId, text })
             setNewComment("")
             setError("")
-            fetchComments() // ⬅️ Обновляем список после успешной отправки
+            fetchComments()
         } catch (err) {
             setError(err.response?.data?.error || "Помилка при додаванні коментаря")
+        }
+    }
+
+    const handleDelete = async () => {
+        try {
+            await deleteComment(commentToDelete)
+            setComments(prev => prev.filter(c => c.id !== commentToDelete))
+        } catch (err) {
+            console.error("Помилка при видаленні коментаря", err)
+        } finally {
+            setCommentToDelete(null)
         }
     }
 
@@ -70,15 +82,44 @@ const CommentsSection = ({ targetType, targetId }) => {
             ) : (
                 <div className="space-y-3">
                     {comments.map((comment) => (
-                        <div key={comment.id} className="bg-gray-100 rounded p-3">
-                            <div className="text-sm font-semibold text-gray-800">
-                                {comment.user_name || "Користувач"}
+                        <div key={comment.id} className="bg-gray-100 rounded p-3 relative">
+                            {user?.id === comment.user_id && (
+                                <button
+                                    onClick={() => setCommentToDelete(comment.id)}
+                                    className="absolute top-2 right-2 text-red-500 hover:text-red-700 text-sm"
+                                    title="Видалити"
+                                >
+                                    ✖
+                                </button>
+                            )}
+
+                            <div className="text-xs text-gray-500 absolute top-2 left-3">
+                                {new Date(comment.created_at).toLocaleString("uk-UA", {
+                                    day: "2-digit",
+                                    month: "2-digit",
+                                    year: "numeric",
+                                    hour: "2-digit",
+                                    minute: "2-digit"
+                                })}
                             </div>
-                            <div className="text-sm text-gray-700 mt-1 whitespace-pre-line">
+
+                            <div className="text-sm text-gray-700 whitespace-pre-line mt-4">
                                 {comment.text}
                             </div>
                         </div>
                     ))}
+                </div>
+            )}
+
+            {commentToDelete && (
+                <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+                    <div className="bg-white p-5 rounded shadow-md w-72 space-y-4">
+                        <p className="text-gray-800 text-sm">Ви впевнені, що хочете видалити цей коментар?</p>
+                        <div className="flex justify-end gap-3">
+                            <button onClick={() => setCommentToDelete(null)} className="text-gray-600">Скасувати</button>
+                            <button onClick={handleDelete} className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">Видалити</button>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>
