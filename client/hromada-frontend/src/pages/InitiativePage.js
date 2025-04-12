@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom"
 import axios from "axios"
 import { getCurrentUser } from "../api/user"
 import { getMySupportedInitiatives, supportInitiative, unsupportInitiative } from "../api/support"
+import CommentsSection from "../components/CommentsSection"
 
 const InitiativePage = () => {
     const { id } = useParams()
@@ -109,20 +110,8 @@ const InitiativePage = () => {
                     </div>
                 )}
 
-                <div className="mt-6">
-                    <h2 className="text-lg font-semibold mb-2">Коментарі</h2>
-                    {initiative.comments?.length > 0 ? (
-                        <ul className="space-y-2">
-                            {initiative.comments.map((comment) => (
-                                <li key={comment.id} className="bg-gray-100 p-2 rounded">
-                                    {comment.content}
-                                </li>
-                            ))}
-                        </ul>
-                    ) : (
-                        <p className="text-sm text-gray-500">Коментарів ще немає</p>
-                    )}
-                </div>
+                {/* Коментарі */}
+                <CommentsSection targetType="initiative" targetId={initiative.id} />
             </div>
         </div>
     )

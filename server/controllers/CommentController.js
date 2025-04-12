@@ -61,6 +61,11 @@ const deleteComment = async (req, res) => {
 
 const getByTarget = async (req, res) => {
     const { type, id } = req.params;
+
+    if (!['initiative', 'announcement'].includes(type)) {
+        return res.status(400).json({ error: 'Невірний тип цілі' });
+    }
+
     const comments = await Comment.findByTarget(type, id);
     res.json(comments);
 };
