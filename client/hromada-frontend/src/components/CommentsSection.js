@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { getCommentsByTarget, createComment, deleteComment } from "../api/comment"
 import { getCurrentUser, getUserNameById } from "../api/user"
 
@@ -11,7 +11,7 @@ const CommentsSection = ({ targetType, targetId }) => {
     const [commentToDelete, setCommentToDelete] = useState(null)
     const [names, setNames] = useState({}) // user_id => { name, surname }
 
-    const fetchComments = async () => {
+    const fetchComments = useCallback(async () => {
         try {
             const data = await getCommentsByTarget(targetType, targetId)
             setComments(data)
@@ -31,12 +31,12 @@ const CommentsSection = ({ targetType, targetId }) => {
         } finally {
             setLoading(false)
         }
-    }
+    }, [targetType, targetId, names])
 
     useEffect(() => {
         fetchComments()
         getCurrentUser().then(setUser).catch(() => {})
-    }, [targetType, targetId])
+    }, [fetchComments])
 
     const handleSubmit = async () => {
         const text = newComment.trim()
