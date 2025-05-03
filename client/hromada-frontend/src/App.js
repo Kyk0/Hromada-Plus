@@ -8,7 +8,8 @@ import ProfilePage from "./pages/ProfilePage"
 import CreateInitiativePage from "./pages/CreateInitiativePage"
 import InitiativePage from "./pages/InitiativePage"
 import SearchPage from "./pages/SearchPage"
-
+import { Analytics } from "@vercel/analytics/react";
+    
 import MainLayout from "./components/MainLayout"
 
 function App() {
@@ -35,6 +36,7 @@ function App() {
 
                 <Route path="*" element={<Navigate to="/" />} />
             </Routes>
+            <Analytics />
         </Router>
     )
 }
