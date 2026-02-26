@@ -1,1 +1,1 @@
-Project for Hackathon Fresh AIR 2025
+Project for Hackathon Ukraine Fresh AIR 2025
